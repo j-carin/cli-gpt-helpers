@@ -1,0 +1,57 @@
+#!/bin/bash
+
+print_file_markers() {
+    local file="$1"
+    
+    echo "### Start \"$file\""
+    cat "$file"
+
+    echo
+    echo "### End \"$file\""
+    echo
+}
+
+should_process_file() {
+    local file="$1"
+    [[ -f "$file" && ! "$file" =~ ^\..* ]]
+}
+
+process_directory_recursive() {
+    local dir="$1"
+    
+    for item in "$dir"/*; do
+        if [[ -d "$item" ]]; then
+            process_directory_recursive "$item"
+        elif should_process_file "$item"; then
+            print_file_markers "$item"
+        fi
+    done
+}
+
+recursive=false
+
+if [[ "$1" == "-r" ]]; then
+    recursive=true
+    shift
+fi
+
+if [[ "$#" -eq 0 ]]; then
+    directory="$(pwd)"
+else
+    directory="$1"
+fi
+
+if [[ -d "$directory" ]]; then
+    if [[ "$recursive" == "true" ]]; then
+        process_directory_recursive "$directory"
+    else
+        for file in "$directory"/*; do
+            if should_process_file "$file"; then
+                print_file_markers "$file"
+            fi
+        done
+    fi
+else
+    echo "Error: \"$directory\" is not a valid directory."
+    exit 1
+fi
