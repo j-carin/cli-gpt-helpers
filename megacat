@@ -1,19 +1,19 @@
 #!/bin/bash
 
+# Function to print the start and end markers for a file
 print_file_markers() {
     local file="$1"
-    
     echo "### Start \"$file\""
     cat "$file"
-
-    echo
     echo "### End \"$file\""
-    echo
 }
 
+# Function to check if a file should be processed
 should_process_file() {
     local file="$1"
-    [[ -f "$file" && ! "$file" =~ ^\..* ]]
+    local script_filename="$(basename "$0")"
+    local current_filename="$(basename "$file")"
+    [[ -f "$file" && ! "$file" =~ ^\..* && "$current_filename" != "$script_filename" ]]
 }
 
 process_directory_recursive() {
